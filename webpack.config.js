@@ -4,7 +4,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 module.exports = {
   mode: "production",
   entry: {
-    example: path.join(__dirname, "src", "api", "example.ts"),
+    "macu": path.join(__dirname, "src", "macu.ts"),
   },
   output: {
     filename: "[name].js",

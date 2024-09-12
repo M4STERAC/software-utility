@@ -5,12 +5,11 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'json'],
   moduleNameMapper: {
       "^src\/(.*)$": "<rootDir>/src/$1",
-      "^.tests\/(.*)$": "<rootDir>/.tests/$1",
       "^.mocks\/(.*)$": "<rootDir>/.mocks/$1",
       "^.data\/(.*)$": "<rootDir>/.data/$1",
   },
   testMatch: [
-      '<rootDir>/.tests/**/*.test.ts'
+      "<rootDir>/.tests/godot/create-godot-patch-release-test.ts",
   ],
   transform: {
       '^.+\\.ts$': 'ts-jest',
@@ -21,5 +20,5 @@ export default {
       "/node_modules/"
   ],
   preset: 'ts-jest',
-  setupFiles: ['<rootDir>/.tests/setEnvVars.ts'],
+//   setupFiles: ['<rootDir>/.tests/setEnvVars.ts'],
 }

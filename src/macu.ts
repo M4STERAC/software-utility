@@ -3,8 +3,9 @@ import create_godot_patch_release from './godot/create-godot-patch-release';
 
 const version = require('../package.json').version;
 
+console.log('Hello World!');
+
 program
-  .name('macu')
   .version(version)
   .description('CLI to implement workflows for different projects')
 

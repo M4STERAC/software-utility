@@ -3,22 +3,17 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = {
   mode: "production",
+  devtool: "source-map",
   entry: {
     "macu": path.join(__dirname, "src", "macu.ts"),
-  },
-  output: {
-    filename: "[name].js",
-    path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
-      },
+        use: ['babel-loader', 'ts-loader'],
+      }
     ],
   },
   resolve: {

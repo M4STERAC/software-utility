@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "target": "ES2017",
+    "noImplicitAny": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"],
+      ".test/*": [".test/*"],
+      ".data/*": [".data/*"],
+      ".mocks/*": [".mocks/*"],
+    },
+  },
+  "include": ["./src/**/*.ts", "./.shims/**/*.d.ts"],
+  "exclude": ["node_modules"]
+}

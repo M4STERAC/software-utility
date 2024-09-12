@@ -1,0 +1,47 @@
+{
+  "name": "software-utility",
+  "description": "A CLI utility for managing workflows",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.ts --fix",
+    "webpack": " tsc && webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M4STERAC/software-utility.git"
+  },
+  "keywords": [
+    "workflow",
+    "git",
+    "node",
+    "aws",
+    "godot"
+  ],
+  "author": "Matthew Manka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/M4STERAC/software-utility/issues"
+  },
+  "homepage": "https://github.com/M4STERAC/software-utility#readme",
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.5.4",
+    "babel-jest": "^29.7.0",
+    "eslint": "^9.10.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "raw-loader": "^4.0.2",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "webpack": "^5.94.0",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {}
+}

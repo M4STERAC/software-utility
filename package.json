@@ -7,7 +7,7 @@
     "macu": "dist/macu.js"
   },
   "scripts": {
-    "test": "npm run webpack && node out/index.js create-godot-patch-release",
+    "test": "npm run webpack && node dist/macu.js create-godot-patch-release",
     "lint": "eslint src/**/*.ts --fix",
     "webpack": "webpack",
     "release:patch": "npm version patch && git push && git push --tags && npm publish",

@@ -1,14 +1,20 @@
 {
-  "name": "Run Jest Tests",
-  "type": "node",
-  "request": "launch",
-  "runtimeArgs": [
-    "--inspect-brk",
-    "${workspaceRoot}/node_modules/jest/bin/jest.js",
-    "--runInBand",
-    "create-godot-patch-release"
-  ],
-  "console": "integratedTerminal",
-  "internalConsoleOptions": "neverOpen",
-  "port": 7863
+  "version": "0.0.0",
+  "configurations": [
+    {
+      "name": "Run Jest Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        // "create-godot-patch-release",
+        "console-art",
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "port": 7863
+    }
+  ]
 }

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 
 export default function create_godot_patch_release() {
 
-  console.log('creating release');
+  console.log('Creating release');
   
   const filename = 'project.godot';
   const delimiter = os.platform() === 'win32' ? '\\' : '/';
@@ -15,6 +15,7 @@ export default function create_godot_patch_release() {
   try {
     const project_godot = fs.readFileSync(filepath, 'utf8');
     console.log(project_godot);
+    console.log('Successfully created release');
   } catch (err) {
     console.error('Error reading file:', err);
   }

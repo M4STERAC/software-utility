@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run webpack && node dist/macu.js create-godot-patch-release",
     "lint": "eslint src/**/*.ts --fix",
-    "webpack": " tsc && webpack"
+    "webpack": "tsc && webpack"
   },
   "repository": {
     "type": "git",

@@ -1,12 +1,12 @@
 import * as os from 'os';
 import * as fs from 'fs';
 
-export default async function create_godot_patch_release() {
+export default function create_godot_patch_release() {
 
   console.log('creating release');
   
   const filename = 'project.godot';
-  const delimiter = os.platform() === 'win32' ? '/' : '\\';
+  const delimiter = os.platform() === 'win32' ? '\\' : '/';
   const filepath = process.cwd() + delimiter + filename;
   
   //Check if project.godot is in working directory - Return if not

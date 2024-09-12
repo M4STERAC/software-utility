@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 import { Command } from 'commander';
 import create_godot_patch_release from './godot/create-godot-patch-release';
@@ -7,7 +7,7 @@ import generateTextArt from './utils/console-art';
 const program = new Command();
 const version = require('../package.json').version;
 
-console.log(generateTextArt('MACU'));
+// console.log(generateTextArt('MACU'));
 
 program
   .name('macu')

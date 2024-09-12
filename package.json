@@ -4,7 +4,7 @@
   "version": "0.1.1",
   "main": "dist/macu.js",
   "bin": {
-    "macu": "dist/macu.js"
+    "macu": "./dist/macu.js"
   },
   "scripts": {
     "test": "jest",
@@ -52,6 +52,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "figlet": "^1.7.0"
   }
 }

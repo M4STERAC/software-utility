@@ -1,7 +1,7 @@
 {
   "name": "@m4ster-ac/cli-util",
   "description": "A CLI utility for managing workflows",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/macu.js",
   "bin": {
     "macu": "dist/macu.js"

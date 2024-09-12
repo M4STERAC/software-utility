@@ -9,7 +9,8 @@ export default {
       "^.data\/(.*)$": "<rootDir>/.data/$1",
   },
   testMatch: [
-      "<rootDir>/.tests/godot/create-godot-patch-release-test.ts",
+    "**/__tests__/**/*.ts",
+    "**/?(*.)(spec|test).ts"
   ],
   transform: {
       '^.+\\.ts$': 'ts-jest',

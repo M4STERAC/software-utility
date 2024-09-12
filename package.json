@@ -1,5 +1,5 @@
 {
-  "name": "software-utility",
+  "name": "@m4ster-ac/software-utility",
   "description": "A CLI utility for managing workflows",
   "version": "0.0.0",
   "main": "index.js",

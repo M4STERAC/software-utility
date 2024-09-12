@@ -9,9 +9,10 @@
     "baseUrl": "./",
     "paths": {
       "src/*": ["src/*"],
-      ".test/*": [".test/*"],
+      ".tests/*": [".tests/*"],
       ".data/*": [".data/*"],
       ".mocks/*": [".mocks/*"],
+      ".shims/*": [".shims/*"],
     },
     // "outDir": "./out",
   },

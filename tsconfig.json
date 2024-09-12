@@ -13,6 +13,7 @@
       ".data/*": [".data/*"],
       ".mocks/*": [".mocks/*"],
     },
+    "outDir": "./out",
   },
   "include": ["./src/**/*.ts", "./.shims/**/*.d.ts"],
   "exclude": ["node_modules"]

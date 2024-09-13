@@ -1,9 +1,26 @@
 import * as os from 'os';
 import * as fs from 'fs';
-import chalk from 'chalk';
 import * as increment from 'semver/functions/inc';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as prompts from 'prompts';
+import { Octokit } from '@octokit/core';
+
+interface GithubPostTagData {
+  owner: string;
+  repo: string;
+  tag: string;
+  message: string;
+  type: 'commit';
+  object: string;
+  tagger: {
+    name: string;
+    email: string;
+    date: Date;
+  },
+  headers: {
+    'X-GitHub-Api-Version': '2022-11-28';
+  },
+};
 
 const readProjectGodot = async (filepath: string): Promise<string> => {
   if (!fs.existsSync(filepath)) throw 'Required file project.godot does not exist in current working directly. Please try again in the current directoy';
@@ -22,7 +39,17 @@ const extractGodotVersion = async (project_godot: string, regex: RegExp): Promis
   return match;
 };
 
-const writeGodotVersion = async (project_godot: string, filepath: string): Promise<void> => {
+const injectGodotVersion = async (project_godot: string, regex: RegExp, version: string): Promise<string> => {
+  try {
+    const updated_project_godot = project_godot.replace(project_godot.match(regex)[1], version);
+    console.log(updated_project_godot);
+    return updated_project_godot;
+  } catch (err) {
+    throw 'Failed to inject new version to project.godot... PLease manually increment the version';
+  }
+};
+
+const writeProjectGodot = async (project_godot: string, filepath: string): Promise<void> => {
   try {
     fs.writeFileSync(filepath, project_godot, 'utf-8');
   } catch (__ignored_error__) {
@@ -39,76 +66,122 @@ const getSecrets = async () => {
   return secrets.github;
 };
 
-type CGPR_Params = { repository: string };
+const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string): Promise<AxiosResponse> => {
+  const tags = await axios.get(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/tags`, {
+    headers: {
+      Authorization: `Bearer ${GITHUB_TOKEN}`
+    }
+  });
+  if (tags.data.length === 0 || !tags.data[0].commit.sha) 
+    throw 'There has not been an initial tag created. Please manually create the first tag for the repository and you can make the subsequential tags with this CLI tool';
+  return tags;
+};
+
+const postNewRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string, tag_data: GithubPostTagData): Promise<string> => {
+  try {
+    const octokit = new Octokit({ auth: GITHUB_TOKEN });
+    const response = await octokit.request(`POST /repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/git/tags`, tag_data as any);
+    return response.data.object.sha;
+  } catch (err) {
+    throw `Failed to post new repo tag with error ${err}`;
+  }
+};
+
+const pushNewRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string, sha: string, ref: string): Promise<number | string> => {
+  try {
+    const octokit = new Octokit({ auth: GITHUB_TOKEN });
+    const response = await octokit.request(`PATCH /repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/git/refs/${ref}`, {
+      force: true,
+      repo: GITHUB_REPOSITORY,
+      sha: sha,
+      owner: GITHUB_USERNAME,
+      ref: ref,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    });
+    return response.status;
+  } catch (err) {
+    throw `Failed to push new tag. Please run git push --tags in your terminal and manually increment the version in project.godot: ${err}`;
+  }
+};
+
+type CGPR_Params = { repository: string, branch: string };
 export default async (options: CGPR_Params) => {
   
   const GITHUB_REPOSITORY = 
     options.repository || 
     (await prompts({ name: 'repository', message: 'What is the repository in which you intend to create a tag? (Case and Space Sensitive)', type: 'text' })).repository.trim();
-  
+  const GITHUB_REF = 
+    options.branch || 
+    (await prompts({ name: 'branch', message: 'What is the ref/branch in which you intend to push the created tag? (Case and Space Sensitive)', type: 'text' })).branch.trim();
   const filename = 'project.godot';
   const delimiter = os.platform() === 'win32' ? '\\' : '/';
   const filepath = process.cwd() + delimiter + filename;
   const versionRegex = /version="v(\d+\.\d+\.\d+)"/;
-  
+    
   try {
     //Get github personal access token from secrets file
-    console.log(chalk.cyan('[macu cgpr]: Getting secrets...'));
+    console.log('[macu cgpr]: Getting secrets...');
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const GITHUB_EMAIL = GITHUB_SECRESTS.email; 
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
-    console.log(chalk.cyan('[macu cgpr]: Reading project.godot'));
+    
+    console.log('[macu cgpr]: Reading project.godot');
     const project_godot = await readProjectGodot(filepath);
     const godot_version = await extractGodotVersion(project_godot, versionRegex);
 
     if (!godot_version) throw 'Unable to find current version in the project.godot file';
-    console.log(chalk.green('[macu cgpr]: Successfully found version in project_godot'));
+    console.log('[macu cgpr]: Successfully found version in project_godot');
 
     //Get current file version
     const CURRENT_GODOT_VERSION = godot_version[1];
 
     //Get current github version
-    const tags = await axios.get(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/tags`, {
-      headers: {
-        Authorization: `Bearer ${__GITHUB_PERSONAL_ACCESS_TOKEN__}`
-      }
-    });
-    const CURRENT_REPO_VERSION = tags.data.length > 0 ? tags.data[0].name : 'v0.0.0';
+    const tags = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
+    const CURRENT_REPO_VERSION = tags.data[0].name;
+    const LATEST_REPO_COMMIT_HASH = tags.data[0].commit.sha;
+    console.log('[macu cgpr]: Latest Commit: ', LATEST_REPO_COMMIT_HASH);
 
     //If file version !== current github tag, throw error
     if (`v${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
-    console.log(chalk.green(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
+    console.log(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`);
 
     //Create new version
     const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'patch');
-    console.log('new version: ', NEW_VERSION);
+    console.log('[macu cgpr]: New Version: ', NEW_VERSION);
 
     //Create github tag for new version
-    const tagData = {
-      tag: NEW_VERSION,
-      message: '',
-      object: 'commit',
+    
+    const tagData: GithubPostTagData = {
+      owner: GITHUB_USERNAME,
+      repo: GITHUB_REPOSITORY,
+      tag: `v${NEW_VERSION}`,
+      message: `[macu cgpr]: Patch Release by ${GITHUB_USERNAME}`,
+      type: 'commit',
+      object: LATEST_REPO_COMMIT_HASH,
       tagger: {
         name: GITHUB_USERNAME,
         email: GITHUB_EMAIL,
         date: new Date()
-      }
-    };
-    const response = await axios.post(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/tags`, tagData, {
+      },
       headers: {
-        Authorization: `Bearer ${__GITHUB_PERSONAL_ACCESS_TOKEN__}`
-      }
-    });
-
-    console.log(response);
-
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    };
+    const sha = await postNewRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__, tagData);
+    await pushNewRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__, sha, GITHUB_REF);
+    console.log('[macu cgpr]: Successfully created tag object for latest commit');
+    
     //Write new version to project.godot
-    await writeGodotVersion(project_godot, filepath);
-    console.log(chalk.green('[macucgpr]: Successfully wrote new version to project.godot'));
+    const updated_project_godot = await injectGodotVersion(project_godot, versionRegex, NEW_VERSION);
+    await writeProjectGodot(updated_project_godot, filepath);
+    console.log('[macu cgpr]: Successfully wrote new version to project.godot');
 
     //Commit and push changes to project.godot
   } catch (err) {
-    console.error(chalk.red(`[macu cgpr]: ${err}`));
+    console.error(`[macu cgpr]: ${err}`);
+    // console.log(err)
   }
 };

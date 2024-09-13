@@ -18,6 +18,7 @@ program
   .command('create-godot-patch-release')
   .alias('cgpr')
   .description('Creates a Godot release for working directory')
+  .option('-r --repository', 'What is the repository in which you intend to create a tag?')
   .action(create_godot_patch_release);
 
 program.parse(process.argv);

@@ -57,8 +57,9 @@ const writeProjectGodot = async (project_godot: string, filepath: string): Promi
   }
 };
 
-const pushGithubChanges = async (message: string) => {
-  execSync(`git add .`);
+const pushGithubChanges = async (message: string, files: string[]) => {
+  const filesToStage: string = files.join(' ');
+  execSync(`git add ${filesToStage}`);
   execSync(`git commit -m "[macu cgpr]: ${message}"`);
   execSync(`git push`);
 };
@@ -139,7 +140,7 @@ export default async () => {
     console.log('[macu cgpr]: Successfully wrote new version to project.godot');
     
     //Commit and push changes to project.godot
-    await pushGithubChanges('Injected new version into project.godot');
+    await pushGithubChanges('Injected new version into project.godot', ['project.godot']);
 
     await createGithubTag(NEW_VERSION, GITHUB_USERNAME);
     console.log(`[macu cgpr]: Successfully created tag object for latest commit and pushed to ${GITHUB_REPOSITORY}`);

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as increment from 'semver/functions/inc';
 import axios, { AxiosResponse } from 'axios';
 import * as prompts from 'prompts';
-import { Octokit } from '@octokit/core';
+import { execSync } from 'child_process';
 
 interface GithubPostTagData {
   owner: string;
@@ -42,7 +42,6 @@ const extractGodotVersion = async (project_godot: string, regex: RegExp): Promis
 const injectGodotVersion = async (project_godot: string, regex: RegExp, version: string): Promise<string> => {
   try {
     const updated_project_godot = project_godot.replace(project_godot.match(regex)[1], version);
-    console.log(updated_project_godot);
     return updated_project_godot;
   } catch (err) {
     throw 'Failed to inject new version to project.godot... PLease manually increment the version';
@@ -55,6 +54,12 @@ const writeProjectGodot = async (project_godot: string, filepath: string): Promi
   } catch (__ignored_error__) {
     throw 'Failed to write new version to project.godot... Please manually increment the version';
   }
+};
+
+const pushGithubChanges = async (message: string) => {
+  execSync(`git add .`);
+  execSync(`git commit -m "[macu cgpr]: ${message}"`);
+  execSync(`git push`);
 };
 
 const getSecrets = async () => {
@@ -77,33 +82,10 @@ const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: stri
   return tags;
 };
 
-const postNewRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string, tag_data: GithubPostTagData): Promise<string> => {
-  try {
-    const octokit = new Octokit({ auth: GITHUB_TOKEN });
-    const response = await octokit.request(`POST /repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/git/tags`, tag_data as any);
-    return response.data.object.sha;
-  } catch (err) {
-    throw `Failed to post new repo tag with error ${err}`;
-  }
-};
-
-const pushNewRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string, sha: string, ref: string): Promise<number | string> => {
-  try {
-    const octokit = new Octokit({ auth: GITHUB_TOKEN });
-    const response = await octokit.request(`PATCH /repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/git/refs/${ref}`, {
-      force: true,
-      repo: GITHUB_REPOSITORY,
-      sha: sha,
-      owner: GITHUB_USERNAME,
-      ref: ref,
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28'
-      }
-    });
-    return response.status;
-  } catch (err) {
-    throw `Failed to push new tag. Please run git push --tags in your terminal and manually increment the version in project.godot: ${err}`;
-  }
+const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<void> => {
+  const message: string = `[macu cgpr]: Patch Release by ${GITHUB_USERNAME}`;
+  execSync(`git tag -a v${tag} -m "${message}"`);
+  execSync(`git push origin v${tag}`);
 };
 
 type CGPR_Params = { repository: string, branch: string };
@@ -125,7 +107,6 @@ export default async (options: CGPR_Params) => {
     console.log('[macu cgpr]: Getting secrets...');
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
-    const GITHUB_EMAIL = GITHUB_SECRESTS.email; 
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
     
     console.log('[macu cgpr]: Reading project.godot');
@@ -152,34 +133,16 @@ export default async (options: CGPR_Params) => {
     const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'patch');
     console.log('[macu cgpr]: New Version: ', NEW_VERSION);
 
-    //Create github tag for new version
-    
-    const tagData: GithubPostTagData = {
-      owner: GITHUB_USERNAME,
-      repo: GITHUB_REPOSITORY,
-      tag: `v${NEW_VERSION}`,
-      message: `[macu cgpr]: Patch Release by ${GITHUB_USERNAME}`,
-      type: 'commit',
-      object: LATEST_REPO_COMMIT_HASH,
-      tagger: {
-        name: GITHUB_USERNAME,
-        email: GITHUB_EMAIL,
-        date: new Date()
-      },
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-    };
-    const sha = await postNewRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__, tagData);
-    await pushNewRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__, sha, GITHUB_REF);
-    console.log('[macu cgpr]: Successfully created tag object for latest commit');
-    
     //Write new version to project.godot
     const updated_project_godot = await injectGodotVersion(project_godot, versionRegex, NEW_VERSION);
     await writeProjectGodot(updated_project_godot, filepath);
     console.log('[macu cgpr]: Successfully wrote new version to project.godot');
-
+    
     //Commit and push changes to project.godot
+    await pushGithubChanges('Injected new version into project.godot');
+
+    await createGithubTag(NEW_VERSION, GITHUB_USERNAME);
+    console.log(`[macu cgpr]: Successfully created tag object for latest commit and pushed to ${GITHUB_REPOSITORY}`);
   } catch (err) {
     console.error(`[macu cgpr]: ${err}`);
     // console.log(err)

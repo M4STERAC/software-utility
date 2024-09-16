@@ -2,7 +2,8 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as increment from 'semver/functions/inc';
 import axios, { AxiosResponse } from 'axios';
-import * as prompts from 'prompts';
+// import * as prompts from 'prompts';
+import * as path from 'path';
 import { execSync } from 'child_process';
 
 interface GithubPostTagData {
@@ -88,15 +89,8 @@ const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<vo
   execSync(`git push origin v${tag}`);
 };
 
-type CGPR_Params = { repository: string, branch: string };
-export default async (options: CGPR_Params) => {
+export default async () => {
   
-  const GITHUB_REPOSITORY = 
-    options.repository || 
-    (await prompts({ name: 'repository', message: 'What is the repository in which you intend to create a tag? (Case and Space Sensitive)', type: 'text' })).repository.trim();
-  const GITHUB_REF = 
-    options.branch || 
-    (await prompts({ name: 'branch', message: 'What is the ref/branch in which you intend to push the created tag? (Case and Space Sensitive)', type: 'text' })).branch.trim();
   const filename = 'project.godot';
   const delimiter = os.platform() === 'win32' ? '\\' : '/';
   const filepath = process.cwd() + delimiter + filename;
@@ -108,6 +102,8 @@ export default async (options: CGPR_Params) => {
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
+    const GITHUB_REPOSITORY = path.basename(__dirname, path.sep);
+    console.log('Repo: ', GITHUB_REPOSITORY);
     
     console.log('[macu cgpr]: Reading project.godot');
     const project_godot = await readProjectGodot(filepath);

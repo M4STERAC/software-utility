@@ -6,23 +6,6 @@ import axios, { AxiosResponse } from 'axios';
 import * as path from 'path';
 import { execSync } from 'child_process';
 
-interface GithubPostTagData {
-  owner: string;
-  repo: string;
-  tag: string;
-  message: string;
-  type: 'commit';
-  object: string;
-  tagger: {
-    name: string;
-    email: string;
-    date: Date;
-  },
-  headers: {
-    'X-GitHub-Api-Version': '2022-11-28';
-  },
-};
-
 const readProjectGodot = async (filepath: string): Promise<string> => {
   if (!fs.existsSync(filepath)) throw 'Required file project.godot does not exist in current working directly. Please try again in the current directoy';
   const project_godot = fs.readFileSync(filepath, 'utf8');

@@ -7,14 +7,15 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 
 jest.setTimeout(3000);
-jest.mock('fs')
-jest.mock('axios')
-jest.mock('path')
-jest.mock('child_process')
+jest.mock('fs');
+jest.mock('axios');
+jest.mock('path');
+jest.mock('child_process');
 
 describe('Create Godot Patch Release - Happy Paths w/ Mocks', () => {
   beforeEach(() => {
     jest.spyOn(path, 'basename').mockReturnValueOnce('GITHUB REPOSITORY NAME');
+    jest.spyOn(path, 'resolve').mockReturnValue(`${__dirname}${path.sep}GITHUB REPOSITORY NAME`);
     jest.spyOn(axios, 'get').mockResolvedValue({ 
       data: [{ name: 'v1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }] 
     });
@@ -42,6 +43,7 @@ describe('Create Godot Patch Release - Happy Paths w/ Mocks', () => {
 describe('Create Godot Patch Release - Failure Paths', () => {
   beforeEach(() => {
     jest.spyOn(path, 'basename').mockReturnValueOnce('GITHUB REPOSITORY NAME');
+    jest.spyOn(path, 'resolve').mockReturnValue(`${__dirname}${path.sep}GITHUB REPOSITORY NAME`);
     jest.spyOn(axios, 'get').mockResolvedValue({ 
       data: [{ name: 'v1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }] 
     });

@@ -37,6 +37,8 @@
   },
   "homepage": "https://github.com/M4STERAC/software-utility#readme",
   "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.5.4",

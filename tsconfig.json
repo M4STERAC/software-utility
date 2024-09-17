@@ -14,7 +14,7 @@
       ".mocks/*": [".mocks/*"],
       ".shims/*": [".shims/*"],
     },
-    // "outDir": "./out",
+    "outDir": "./dist",
   },
   "include": ["./src/**/*.ts", "./.shims/**/*.d.ts"],
   "exclude": ["node_modules"]

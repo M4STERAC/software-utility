@@ -3,8 +3,10 @@ import * as fs from 'fs';
 import * as increment from 'semver/functions/inc';
 import axios, { AxiosResponse } from 'axios';
 // import * as prompts from 'prompts';
+import * as chalk from 'chalk';
 import * as path from 'path';
 import * as child_process from 'child_process';
+
 
 const readProjectGodot = async (filepath: string): Promise<string> => {
   const project_godot = fs.readFileSync(filepath, 'utf8');
@@ -79,27 +81,27 @@ const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<vo
 
 type CGPR_RESPONSE = { statusCode: number, body: string | undefined };
 export default async (): Promise<CGPR_RESPONSE> => {
-  
+
   const filename = 'project.godot';
   const filepath = process.cwd() + path.sep + filename;
   const versionRegex = /version="v(\d+\.\d+\.\d+)"/;
     
   try {
     //Get github personal access token from secrets file
-    console.log('[macu cgpr]: Getting secrets...');
+    console.log(chalk.cyan('[macu cgpr]: Getting secrets...'));
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
     const GITHUB_REPOSITORY_PATH = path.resolve(__dirname, '..', '..');
     const GITHUB_REPOSITORY = path.basename(GITHUB_REPOSITORY_PATH, path.sep);
-    console.log('Repo: ', GITHUB_REPOSITORY);
+    console.log(chalk.cyan('[macu cgpr]: Repo -', GITHUB_REPOSITORY));
     
-    console.log('[macu cgpr]: Reading project.godot');
+    console.log(chalk.cyan('[macu cgpr]: Reading project.godot'));
     const project_godot = await readProjectGodot(filepath);
     const godot_version = await extractGodotVersion(project_godot, versionRegex);
 
     if (!godot_version) throw 'Unable to find current version in the project.godot file';
-    console.log('[macu cgpr]: Successfully found version in project_godot');
+    console.log(chalk.cyan('[macu cgpr]: Successfully found version in project_godot'));
 
     //Get current file version
     const CURRENT_GODOT_VERSION = godot_version[1];
@@ -108,26 +110,26 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const tags = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
     const CURRENT_REPO_VERSION = tags.data[0].name;
     const LATEST_REPO_COMMIT_HASH = tags.data[0].commit.sha;
-    console.log('[macu cgpr]: Latest Commit: ', LATEST_REPO_COMMIT_HASH);
+    console.log(chalk.cyan('[macu cgpr]: Latest Commit -', LATEST_REPO_COMMIT_HASH));
 
     //If file version !== current github tag, throw error
     if (`v${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
-    console.log(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`);
+    console.log(chalk.cyan(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
 
     //Create new version
     const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'patch');
-    console.log('[macu cgpr]: New Version: ', NEW_VERSION);
+    console.log(chalk.cyan('[macu cgpr]: New Version -', NEW_VERSION));
 
     //Write new version to project.godot
     const updated_project_godot = await injectGodotVersion(project_godot, versionRegex, NEW_VERSION);
     await writeProjectGodot(updated_project_godot, filepath);
-    console.log('[macu cgpr]: Successfully wrote new version to project.godot');
+    console.log(chalk.cyan('[macu cgpr]: Successfully wrote new version to project.godot'));
     
     //Commit and push changes to project.godot
     await pushGithubChanges('Injected new version into project.godot', ['project.godot']);
 
     await createGithubTag(NEW_VERSION, GITHUB_USERNAME);
-    console.log(`[macu cgpr]: Successfully created tag object for latest commit and pushed to ${GITHUB_REPOSITORY}`);
+    console.log(chalk.bgGreen(`[macu cgpr]:`) + ' ' + chalk.green(`Successfully created tag object for latest commit and pushed to ${GITHUB_REPOSITORY}`));
 
     return {
       statusCode: 204,
@@ -135,7 +137,7 @@ export default async (): Promise<CGPR_RESPONSE> => {
     }
 
   } catch (err) {
-    console.error(`[macu cgpr]: ${err}`);
+    console.error(chalk.bgRed(`[macu cgpr]:`) + ' ' + chalk.red(`${err}`));
     return {
       statusCode: 500,
       body: `[macu cgpr]: ${err}`,

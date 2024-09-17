@@ -92,8 +92,9 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
-    const GITHUB_REPOSITORY_PATH = path.resolve(__dirname, '..', '..');
+    const GITHUB_REPOSITORY_PATH = path.resolve(process.cwd());
     const GITHUB_REPOSITORY = path.basename(GITHUB_REPOSITORY_PATH, path.sep);
+    console.log(chalk.cyan('[macu cgpr]: Repo Path -', GITHUB_REPOSITORY_PATH));
     console.log(chalk.cyan('[macu cgpr]: Repo -', GITHUB_REPOSITORY));
     
     console.log(chalk.cyan('[macu cgpr]: Reading project.godot'));

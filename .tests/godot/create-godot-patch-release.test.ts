@@ -14,8 +14,8 @@ jest.mock('child_process');
 
 describe('Create Godot Patch Release - Happy Paths w/ Mocks', () => {
   beforeEach(() => {
-    jest.spyOn(path, 'basename').mockReturnValueOnce('GITHUB REPOSITORY NAME');
-    jest.spyOn(path, 'resolve').mockReturnValue(`${__dirname}${path.sep}GITHUB REPOSITORY NAME`);
+    jest.spyOn(path, 'basename').mockReturnValueOnce(jest.requireActual('path').basename(`C:\\Users\\mrman\\Development\\ProjectAres`, path.sep));
+    jest.spyOn(path, 'resolve').mockReturnValue(`C:\\Users\\mrman\\Development\\ProjectAres`);
     jest.spyOn(axios, 'get').mockResolvedValue({ 
       data: [{ name: 'v1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }] 
     });

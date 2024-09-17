@@ -4,11 +4,11 @@ import * as increment from 'semver/functions/inc';
 import axios, { AxiosResponse } from 'axios';
 // import * as prompts from 'prompts';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import * as child_process from 'child_process';
 
 const readProjectGodot = async (filepath: string): Promise<string> => {
-  if (!fs.existsSync(filepath)) throw 'Required file project.godot does not exist in current working directly. Please try again in the current directoy';
   const project_godot = fs.readFileSync(filepath, 'utf8');
+  if (!project_godot) throw 'Required file project.godot does not exist in current working directly. Please try again in the current directoy';
   return project_godot;
 };
 
@@ -42,13 +42,14 @@ const writeProjectGodot = async (project_godot: string, filepath: string): Promi
 
 const pushGithubChanges = async (message: string, files: string[]) => {
   const filesToStage: string = files.join(' ');
-  execSync(`git add ${filesToStage}`);
-  execSync(`git commit -m "[macu cgpr]: ${message}"`);
-  execSync(`git push`);
+  child_process.execSync(`git add ${filesToStage}`);
+  child_process.execSync(`git commit -m "[macu cgpr]: ${message}"`);
+  child_process.execSync(`git push`);
 };
 
 const getSecrets = async () => {
-  const secretsBuffer = fs.readFileSync(`${os.homedir()}/macu-secrets.json`, 'utf-8');
+  const delimiter = os.platform() === 'win32' ? '\\' : '/';
+  const secretsBuffer = fs.readFileSync(`${os.homedir()}${delimiter}macu-secrets.json`, 'utf-8');
   if (!secretsBuffer) throw 'Could not find macu-secrets.json in your home directory. Please create your personal access token and try again';
   const secrets = JSON.parse(secretsBuffer);
   if (!secrets || !secrets.github.personal_access_token) throw 'Failed to parse secrets and get github personal access token';
@@ -70,14 +71,15 @@ const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: stri
 const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<void> => {
   try {
     const message: string = `[macu cgpr]: Patch Release by ${GITHUB_USERNAME}`;
-    execSync(`git tag -a v${tag} -m "${message}"`);
-    execSync(`git push origin v${tag}`);
+    child_process.execSync(`git tag -a v${tag} -m "${message}"`);
+    child_process.execSync(`git push origin v${tag}`);
   } catch (err) {
     throw `Failed to commit and/or push new tag: ${err}`;
   }
 };
 
-export default async () => {
+type CGPR_RESPONSE = { statusCode: number, body: string | undefined };
+export default async (): Promise<CGPR_RESPONSE> => {
   
   const filename = 'project.godot';
   const delimiter = os.platform() === 'win32' ? '\\' : '/';
@@ -127,8 +129,17 @@ export default async () => {
 
     await createGithubTag(NEW_VERSION, GITHUB_USERNAME);
     console.log(`[macu cgpr]: Successfully created tag object for latest commit and pushed to ${GITHUB_REPOSITORY}`);
+
+    return {
+      statusCode: 204,
+      body: void 0,
+    }
+
   } catch (err) {
     console.error(`[macu cgpr]: ${err}`);
-    // console.log(err)
+    return {
+      statusCode: 500,
+      body: `[macu cgpr]: ${err}`,
+    };
   }
 };

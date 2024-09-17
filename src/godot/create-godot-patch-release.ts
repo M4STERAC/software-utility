@@ -48,8 +48,7 @@ const pushGithubChanges = async (message: string, files: string[]) => {
 };
 
 const getSecrets = async () => {
-  const delimiter = os.platform() === 'win32' ? '\\' : '/';
-  const secretsBuffer = fs.readFileSync(`${os.homedir()}${delimiter}macu-secrets.json`, 'utf-8');
+  const secretsBuffer = fs.readFileSync(`${os.homedir()}${path.sep}macu-secrets.json`, 'utf-8');
   if (!secretsBuffer) throw 'Could not find macu-secrets.json in your home directory. Please create your personal access token and try again';
   const secrets = JSON.parse(secretsBuffer);
   if (!secrets || !secrets.github.personal_access_token) throw 'Failed to parse secrets and get github personal access token';
@@ -82,8 +81,7 @@ type CGPR_RESPONSE = { statusCode: number, body: string | undefined };
 export default async (): Promise<CGPR_RESPONSE> => {
   
   const filename = 'project.godot';
-  const delimiter = os.platform() === 'win32' ? '\\' : '/';
-  const filepath = process.cwd() + delimiter + filename;
+  const filepath = process.cwd() + path.sep + filename;
   const versionRegex = /version="v(\d+\.\d+\.\d+)"/;
     
   try {
@@ -92,7 +90,8 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
-    const GITHUB_REPOSITORY = path.basename(__dirname, path.sep);
+    const GITHUB_REPOSITORY_PATH = path.resolve(__dirname, '..', '..');
+    const GITHUB_REPOSITORY = path.basename(GITHUB_REPOSITORY_PATH, path.sep);
     console.log('Repo: ', GITHUB_REPOSITORY);
     
     console.log('[macu cgpr]: Reading project.godot');

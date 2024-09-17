@@ -8,14 +8,12 @@
     "sourceMap": true,
     "baseUrl": "./",
     "paths": {
-      "src/*": ["src/*"],
-      ".tests/*": [".tests/*"],
-      ".data/*": [".data/*"],
-      ".mocks/*": [".mocks/*"],
-      ".shims/*": [".shims/*"],
+      "src/*": ["../src/*"],
+      ".data/*": ["../.data/*"],
+      ".mocks/*": ["../.mocks/*"],
+      ".shims/*": ["../.shims/*"],
     },
     // "outDir": "./out",
   },
-  "include": ["./src/**/*.ts", "./.shims/**/*.d.ts"],
   "exclude": ["node_modules"]
 }

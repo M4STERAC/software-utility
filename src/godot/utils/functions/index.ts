@@ -106,7 +106,7 @@ export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITOR
  */
 export const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<void> => {
   try {
-    const message: string = `[macu cgpr]: Patch Release by ${GITHUB_USERNAME}`;
+    const message: string = `[macu cgpr]: Release by ${GITHUB_USERNAME}`;
     child_process.execSync(`git tag -a v${tag} -m "${message}"`);
     child_process.execSync(`git push origin v${tag}`);
   } catch (err) {

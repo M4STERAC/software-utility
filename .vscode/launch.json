@@ -9,7 +9,9 @@
         "--inspect-brk",
         "${workspaceRoot}/node_modules/jest/bin/jest.js",
         "--runInBand",
+        
         "create-godot-patch-release",
+        "create-godot-minor-release",
         "console-art",
       ],
       "console": "integratedTerminal",

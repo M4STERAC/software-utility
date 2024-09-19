@@ -39,7 +39,7 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const project_godot = await readProjectGodot(filepath);
     const godot_version = await extractGodotVersion(project_godot, versionRegex);
 
-    if (!godot_version) throw 'Unable to find current version in the project.godot file';
+    if (!godot_version) throw 'Unable to find current version in the project.godot file, please ensure this line is in the project.godot file under [application]: config/version=1.2.3';
     console.log(chalk.cyan('[macu cgmr]: Successfully found version in project_godot'));
 
     const CURRENT_GODOT_VERSION = godot_version[1];

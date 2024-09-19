@@ -1,5 +1,4 @@
 import * as increment from 'semver/functions/inc';
-// import * as prompts from 'prompts';
 import * as chalk from 'chalk';
 import * as path from 'path';
 import { 
@@ -11,7 +10,7 @@ import {
   injectGodotVersion, 
   pushGithubChanges, 
   writeProjectGodot 
-} from './utils/functions';
+} from '../godot/utils/functions';
 
 type CGPR_RESPONSE = { statusCode: number, body: string | undefined };
 export default async (): Promise<CGPR_RESPONSE> => {
@@ -43,18 +42,19 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const CURRENT_GODOT_VERSION = godot_version[1];
 
     //Get current github version
-    const { commit, tag } = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
+    const tag = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
     const CURRENT_REPO_VERSION: string = tag;
-    const LATEST_REPO_COMMIT_HASH: string = commit;
-    console.log(chalk.cyan('[macu cgpr]: Latest Commit -', LATEST_REPO_COMMIT_HASH));
+    console.log(chalk.cyan('[macu cgpr]: Latest tag -', CURRENT_REPO_VERSION));
 
     //If file version !== current github tag, throw error
-    if (`${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
+    if (CURRENT_GODOT_VERSION !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
     console.log(chalk.cyan(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
 
     //Create new version
-    const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'major');
+    const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'patch');
     console.log(chalk.cyan('[macu cgpr]: New Version -', NEW_VERSION));
+
+    if (!NEW_VERSION) throw 'Failed to increment version with semver';
 
     //Write new version to project.godot
     const updated_project_godot = await injectGodotVersion(project_godot, versionRegex, NEW_VERSION);

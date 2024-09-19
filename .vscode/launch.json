@@ -10,9 +10,7 @@
         "${workspaceRoot}/node_modules/jest/bin/jest.js",
         "--runInBand",
         
-        "godot/create-godot-patch-release",
-        "godot/create-godot-minor-release",
-        "godot/create-godot-major-release",
+        "godot/create-godot-release",
 
         "godot/utils/index",
 

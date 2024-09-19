@@ -1,4 +1,4 @@
-import create_godot_patch_release from '../../src/godot/create-godot-patch-release';
+import create_godot_patch_release from '../../src/archived/create-godot-patch-release';
 
 import * as fs from 'fs';
 import * as os from 'os';

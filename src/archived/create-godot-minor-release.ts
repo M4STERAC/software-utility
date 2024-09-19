@@ -1,5 +1,4 @@
 import * as increment from 'semver/functions/inc';
-// import * as prompts from 'prompts';
 import * as chalk from 'chalk';
 import * as path from 'path';
 import { 
@@ -11,7 +10,7 @@ import {
   injectGodotVersion, 
   pushGithubChanges, 
   writeProjectGodot 
-} from './utils/functions';
+} from '../godot/utils/functions';
 
 
 type CGPR_RESPONSE = { statusCode: number, body: string | undefined };
@@ -42,21 +41,22 @@ export default async (): Promise<CGPR_RESPONSE> => {
     if (!godot_version) throw 'Unable to find current version in the project.godot file, please ensure this line is in the project.godot file under [application]: config/version="1.2.3"';
     console.log(chalk.cyan('[macu cgmr]: Successfully found version in project_godot'));
 
-    const CURRENT_GODOT_VERSION = godot_version[1];
+    const CURRENT_GODOT_VERSION: string = godot_version[1];
 
     //Get current github repository version
-    const { commit, tag } = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
+    const tag = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
     const CURRENT_REPO_VERSION: string = tag;
-    const LATEST_REPO_COMMIT_HASH: string = commit;
-    console.log(chalk.cyan('[macu cgmr]: Latest Commit -', LATEST_REPO_COMMIT_HASH));
+    console.log(chalk.cyan('[macu cgmr]: Latest tag -', CURRENT_REPO_VERSION));
 
     //If project.godot version !== current github tag, throw error
-    if (`${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
+    if (CURRENT_GODOT_VERSION !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
     console.log(chalk.cyan(`[macu cgmr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
 
     //Create new version
     const NEW_VERSION = increment(CURRENT_GODOT_VERSION, 'minor');
     console.log(chalk.cyan('[macu cgmr]: New Version -', NEW_VERSION));
+
+    if (!NEW_VERSION) throw 'Failed to increment version with semver';
 
     //Write new version to project.godot
     const updated_project_godot = await injectGodotVersion(project_godot, versionRegex, NEW_VERSION);

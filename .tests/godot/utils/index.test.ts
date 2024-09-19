@@ -10,7 +10,7 @@ test('Extract Godot Version', async () => {
   const project_godot = await readProjectGodot(filepath);
   const godot_version = await extractGodotVersion(project_godot, versionRegex);
   
-  expect(godot_version[1]).toBe('0.0.0');
+  expect(godot_version[1]).toBe('3.0.1');
 });
 
 test('Get Latest Repository Tag', async () => {

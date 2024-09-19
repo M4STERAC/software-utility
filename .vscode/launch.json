@@ -10,9 +10,12 @@
         "${workspaceRoot}/node_modules/jest/bin/jest.js",
         "--runInBand",
         
-        "create-godot-patch-release",
-        "create-godot-minor-release",
-        "console-art",
+        "godot/create-godot-patch-release",
+        "godot/create-godot-minor-release",
+
+        "godot/utils/index",
+
+        "utils/console-art",
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

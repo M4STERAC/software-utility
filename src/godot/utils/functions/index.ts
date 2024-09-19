@@ -86,17 +86,18 @@ type GithubSecrets = { username: string; personal_access_token: string; email: s
  * @param GITHUB_USERNAME string: Value from macu-secrets.json
  * @param GITHUB_REPOSITORY string: Value from macu-secrets.json
  * @param GITHUB_TOKEN string: Value from macu-secrets.json
- * @returns AxiosResponse: Latest tag and related commit sha for given repository
+ * @returns Object: Latest tag and related commit sha for given repository
  */
-export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string): Promise<AxiosResponse> => {
+export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string): Promise<{ commit: string | undefined, tag: string }> => {
   const tags = await axios.get(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/tags`, {
     headers: {
       Authorization: `Bearer ${GITHUB_TOKEN}`
     }
   });
-  if (tags.data.length === 0 || !tags.data[0].commit.sha) 
-    throw 'There has not been an initial tag created. Please manually create the first tag for the repository and you can make the subsequential tags with this CLI tool';
-  return tags;
+
+  if (tags.status !== 200) throw 'API call to get latest repo tag failed. Please try again';
+  if (tags.data.length === 0 || !tags.data[0].commit.sha) return { commit: void 0, tag: '0.0.0' };
+  return { commit: tags.data[0].commit.sha, tag: tags.data[0].name };
 };
 
 /**
@@ -107,8 +108,8 @@ export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITOR
 export const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Promise<void> => {
   try {
     const message: string = `[macu cgpr]: Release by ${GITHUB_USERNAME}`;
-    child_process.execSync(`git tag -a v${tag} -m "${message}"`);
-    child_process.execSync(`git push origin v${tag}`);
+    child_process.execSync(`git tag -a ${tag} -m "${message}"`);
+    child_process.execSync(`git push origin ${tag}`);
   } catch (err) {
     throw `Failed to commit and/or push new tag: ${err}`;
   }

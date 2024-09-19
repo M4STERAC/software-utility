@@ -19,7 +19,7 @@ export default async (): Promise<CGPR_RESPONSE> => {
 
   const filename = 'project.godot';
   const filepath = process.cwd() + path.sep + filename;
-  const versionRegex = /version="v(\d+\.\d+\.\d+)"/;
+  const versionRegex = /config\/version="?(\d+\.\d+\.\d+)"?/;
     
   try {
     //Get github personal access token from secrets file
@@ -45,13 +45,13 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const CURRENT_GODOT_VERSION = godot_version[1];
 
     //Get current github repository version
-    const tags = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
-    const CURRENT_REPO_VERSION = tags.data[0].name;
-    const LATEST_REPO_COMMIT_HASH = tags.data[0].commit.sha;
+    const { commit, tag } = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
+    const CURRENT_REPO_VERSION: string = tag;
+    const LATEST_REPO_COMMIT_HASH: string = commit;
     console.log(chalk.cyan('[macu cgmr]: Latest Commit -', LATEST_REPO_COMMIT_HASH));
 
     //If project.godot version !== current github tag, throw error
-    if (`v${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
+    if (`${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
     console.log(chalk.cyan(`[macu cgmr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
 
     //Create new version

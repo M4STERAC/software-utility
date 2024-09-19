@@ -26,6 +26,7 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const GITHUB_SECRESTS = await getSecrets();
     const GITHUB_USERNAME = GITHUB_SECRESTS.username;
     const __GITHUB_PERSONAL_ACCESS_TOKEN__ = GITHUB_SECRESTS.personal_access_token;
+
     const GITHUB_REPOSITORY_PATH = path.resolve(process.cwd());
     const GITHUB_REPOSITORY = path.basename(GITHUB_REPOSITORY_PATH, path.sep);
     console.log(chalk.cyan('[macu cgpr]: Repo Path -', GITHUB_REPOSITORY_PATH));
@@ -42,13 +43,13 @@ export default async (): Promise<CGPR_RESPONSE> => {
     const CURRENT_GODOT_VERSION = godot_version[1];
 
     //Get current github version
-    const tags = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
-    const CURRENT_REPO_VERSION = tags.data[0].name;
-    const LATEST_REPO_COMMIT_HASH = tags.data[0].commit.sha;
+    const { commit, tag } = await getLatestRepoTag(GITHUB_USERNAME, GITHUB_REPOSITORY, __GITHUB_PERSONAL_ACCESS_TOKEN__);
+    const CURRENT_REPO_VERSION: string = tag;
+    const LATEST_REPO_COMMIT_HASH: string = commit;
     console.log(chalk.cyan('[macu cgpr]: Latest Commit -', LATEST_REPO_COMMIT_HASH));
 
     //If file version !== current github tag, throw error
-    if (`v${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
+    if (`${CURRENT_GODOT_VERSION}` !== CURRENT_REPO_VERSION) throw 'Github tag and Godot versions are misaligned. Please fix this misalignment and try again';
     console.log(chalk.cyan(`[macu cgpr]: Successfully validated Godot\'s version is the same as the latest tag for the ${GITHUB_REPOSITORY} repository`));
 
     //Create new version

@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import create_godot_patch_release from './godot/create-godot-patch-release';
-import create_godot_minor_release from './godot/create-godot-minor-release';
-import create_godot_major_release from './godot/create-godot-major-release';
+import create_godot_release from './godot/create-godot-release';
 import generateTextArt from './utils/console-art';
 
 const program = new Command();
@@ -17,21 +15,12 @@ program
   .description('CLI to implement workflows for different projects')
 
 program
-  .command('create-godot-patch-release')
-  .alias('cgpr')
+  .command('create-godot-release')
+  .alias('cgr')
   .description('Creates a Godot and Github release for working directory')
-  .action(create_godot_patch_release as any);
-
-program
-  .command('create-godot-minor-release')
-  .alias('cgmr')
-  .description('Creates a Godot and Github release for working directory')
-  .action(create_godot_minor_release as any);
-
-program
-  .command('create-godot-major-release')
-  .alias('cgmjr')
-  .description('Creates a Godot and Github release for working directory')
-  .action(create_godot_major_release as any);
+  .option('--patch', 'Creates a patch release')
+  .option('--minor', 'Creates a minor release')
+  .option('--major', 'Creates a major release')
+  .action(create_godot_release as any);
 
 program.parse(process.argv);

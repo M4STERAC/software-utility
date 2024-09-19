@@ -11,18 +11,20 @@ npm i -g @m4ster-ac/cli-util
 ## Available Commands
 
 - create-godot-patch-release | cgpr
+- create-godot-minor-release | cgmr
+- create-godot-major-release | cgmjr
 
 ## Commands in development
 
-- create-godot-minor-release
-- create-godot-major-release
+- Create command: build-godot-project
 
 ## Ideas for implementation
 
-- build-godot-project
-- deploy-godot-project
-- create-github-action
-- authenticate-to-aws
+- Combine release code into single command with different options
+- Create command: deploy-godot-project
+- Create command: create-github-action
+- Create command: dispatch-github-action
+- Create command: authenticate-to-aws
 
 ## Running Tests
 

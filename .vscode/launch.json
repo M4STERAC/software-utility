@@ -12,6 +12,7 @@
         
         "godot/create-godot-patch-release",
         "godot/create-godot-minor-release",
+        "godot/create-godot-major-release",
 
         "godot/utils/index",
 

@@ -17,11 +17,11 @@ describe('Create Godot Patch Release - Happy Paths w/ Mocks', () => {
     jest.spyOn(path, 'basename').mockReturnValueOnce(jest.requireActual('path').basename(`C:\\Users\\mrman\\Development\\ProjectAres`, path.sep));
     jest.spyOn(path, 'resolve').mockReturnValue(`C:\\Users\\mrman\\Development\\ProjectAres`);
     jest.spyOn(axios, 'get').mockResolvedValue({ 
-      data: [{ name: 'v1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }] 
+      data: [{ name: '1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }], status: 200 
     });
     jest.spyOn(fs, 'readFileSync')
-      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${os.platform() === 'win32' ? '\\' : '/'}macu-secrets.json`, 'utf-8'))
-      .mockReturnValueOnce('config/version="v1.5.5"');
+      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${path.sep}macu-secrets.json`, 'utf-8'))
+      .mockReturnValueOnce('config/version="1.5.5"');
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => true);
     jest.spyOn(child_process, 'execSync').mockImplementation(() => {
       const message = 'MOCK: Successfully executed termin command';
@@ -45,7 +45,7 @@ describe('Create Godot Patch Release - Failure Paths', () => {
     jest.spyOn(path, 'basename').mockReturnValueOnce('GITHUB REPOSITORY NAME');
     jest.spyOn(path, 'resolve').mockReturnValue(`${__dirname}${path.sep}GITHUB REPOSITORY NAME`);
     jest.spyOn(axios, 'get').mockResolvedValue({ 
-      data: [{ name: 'v1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }] 
+      data: [{ name: '1.5.5', commit: { sha: 'MOCK_COMMIT_SHA' } }], status: 200 
     });
   });
   
@@ -57,15 +57,15 @@ describe('Create Godot Patch Release - Failure Paths', () => {
 
   test('File does not exist - project.godot', async () => {
     jest.spyOn(fs, 'readFileSync')
-      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${os.platform() === 'win32' ? '\\' : '/'}macu-secrets.json`, 'utf-8'))
+      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${path.sep}macu-secrets.json`, 'utf-8'))
       .mockReturnValueOnce(void 0);
     expect((await create_godot_patch_release()).body).toBe('[macu cgpr]: Required file project.godot does not exist in current working directly. Please try again in the current directoy');
   });
   
   test('Misaligned Versions', async () => {
     jest.spyOn(fs, 'readFileSync')
-      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${os.platform() === 'win32' ? '\\' : '/'}macu-secrets.json`, 'utf-8'))
-      .mockReturnValueOnce('config/version="v1.0.0"');
+      .mockReturnValueOnce(jest.requireActual('fs').readFileSync(`${os.homedir()}${path.sep}macu-secrets.json`, 'utf-8'))
+      .mockReturnValueOnce('config/version="1.0.0"');
     expect((await create_godot_patch_release()).body).toBe('[macu cgpr]: Github tag and Godot versions are misaligned. Please fix this misalignment and try again');
   });
 });

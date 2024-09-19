@@ -109,7 +109,7 @@ export const createGithubTag = async (tag: string, GITHUB_USERNAME: string): Pro
   try {
     const message: string = `[macu cgpr]: Release by ${GITHUB_USERNAME}`;
     child_process.execSync(`git tag -a ${tag} -m "${message}"`);
-    child_process.execSync(`git push origin v${tag}`);
+    child_process.execSync(`git push origin ${tag}`);
   } catch (err) {
     throw `Failed to commit and/or push new tag: ${err}`;
   }

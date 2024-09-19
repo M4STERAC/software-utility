@@ -86,9 +86,9 @@ type GithubSecrets = { username: string; personal_access_token: string; email: s
  * @param GITHUB_USERNAME string: Value from macu-secrets.json
  * @param GITHUB_REPOSITORY string: Value from macu-secrets.json
  * @param GITHUB_TOKEN string: Value from macu-secrets.json
- * @returns Object: Latest tag and related commit sha for given repository
+ * @returns string: Latest tag for given repository
  */
-export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string): Promise<{ commit: string | undefined, tag: string }> => {
+export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITORY: string, GITHUB_TOKEN: string): Promise<string> => {
   const tags = await axios.get(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/tags`, {
     headers: {
       Authorization: `Bearer ${GITHUB_TOKEN}`
@@ -96,8 +96,8 @@ export const getLatestRepoTag = async (GITHUB_USERNAME: string, GITHUB_REPOSITOR
   });
 
   if (tags.status !== 200) throw 'API call to get latest repo tag failed. Please try again';
-  if (tags.data.length === 0 || !tags.data[0].commit.sha) return { commit: void 0, tag: '0.0.0' };
-  return { commit: tags.data[0].commit.sha, tag: tags.data[0].name };
+  if (tags.data.length === 0 || !tags.data[0].commit.sha) return '0.0.0';
+  return tags.data[0].name;
 };
 
 /**

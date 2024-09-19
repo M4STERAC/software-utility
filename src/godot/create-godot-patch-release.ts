@@ -18,7 +18,7 @@ export default async (): Promise<CGPR_RESPONSE> => {
 
   const filename = 'project.godot';
   const filepath = process.cwd() + path.sep + filename;
-  const versionRegex = /config\/version="(\d+\.\d+\.\d+)"/;
+  const versionRegex = /config\/version="?(\d+\.\d+\.\d+)"?/;
     
   try {
     //Get github personal access token from secrets file

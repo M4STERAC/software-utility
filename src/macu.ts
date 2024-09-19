@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import create_godot_patch_release from './godot/create-godot-patch-release';
 import create_godot_minor_release from './godot/create-godot-minor-release';
+import create_godot_major_release from './godot/create-godot-major-release';
 import generateTextArt from './utils/console-art';
 
 const program = new Command();
@@ -26,5 +27,11 @@ program
   .alias('cgmr')
   .description('Creates a Godot and Github release for working directory')
   .action(create_godot_minor_release as any);
+
+program
+  .command('create-godot-major-release')
+  .alias('cgmjr')
+  .description('Creates a Godot and Github release for working directory')
+  .action(create_godot_major_release as any);
 
 program.parse(process.argv);

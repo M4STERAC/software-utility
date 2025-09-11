@@ -1,5 +1,5 @@
 import * as increment from 'semver/functions/inc';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import * as path from 'path';
 import { 
   readProjectGodot, 

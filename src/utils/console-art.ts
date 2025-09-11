@@ -1,6 +1,5 @@
-import * as figlet from 'figlet';
+import figlet from "figlet";
 
-export default function generateTextArt(string: string) {
-  const art = figlet.textSync(string);
-  return art;
-};
+export default async (message: string) => {
+  await figlet.text(message);
+}

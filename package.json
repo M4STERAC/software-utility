@@ -11,8 +11,8 @@
   },
   "scripts": {
     "test": "jest",
-    "test:macu": "npm run webpack && node dist/macu.js -h",
-    "test:cgpr": "npm run webpack && node dist/macu.js cgpr",
+    "test:macu": "node dist/macu.js -h",
+    "test:cgpr": "node dist/macu.js cgpr",
     "lint": "eslint src/**/*.ts --fix",
     "compile": "tsc",
     "release:patch": "tsc && npm version patch && git push && git push --tags && npm publish",

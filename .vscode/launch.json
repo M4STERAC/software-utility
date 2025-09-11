@@ -9,12 +9,9 @@
         "--inspect-brk",
         "${workspaceRoot}/node_modules/jest/bin/jest.js",
         "--runInBand",
-        
-        "godot/create-godot-release",
-
-        "godot/utils/index",
-
-        "utils/console-art",
+        // "godot/create-godot-release.test.ts",
+        // "godot/utils/helperFunctions.test.ts",
+        "console-art.test.ts",
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
